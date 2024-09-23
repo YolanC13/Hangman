@@ -28,6 +28,7 @@ func main() {
 
 func InitializeHangman(text string) {
 	hangman.ClearScreen()
+	HangmanAsciiPrinter(*hangman.PlayerLives)
 	for i := 0; i < len(*hangman.Letters); i++ {
 		fmt.Print(string((*hangman.Letters)[i]))
 	}
@@ -84,6 +85,7 @@ func getLetter() {
 			TextToPrint: "Veuillez entrer une seule lettre",
 			FgColor:     color.FgRed,
 		})
+		*hangman.PlayerLives -= 2
 		getLetter()
 	} else {
 		checkLetter(input)
@@ -98,7 +100,7 @@ func checkLetter(letter string) {
 			foundLetter = true
 		}
 	}
-	if foundLetter {
+	if foundLetter == false {
 		*hangman.PlayerLives -= 1
 	}
 	//fmt.Println(hangman.Letters)
@@ -107,6 +109,7 @@ func checkLetter(letter string) {
 
 func PrintHangman() {
 	hangman.ClearScreen()
+	HangmanAsciiPrinter(*hangman.PlayerLives)
 	for i := 0; i < len(*hangman.Letters); i++ {
 		fmt.Print(string((*hangman.Letters)[i]))
 	}
@@ -134,4 +137,269 @@ func IsLetter(s string) bool {
 		}
 	}
 	return true
+}
+
+func HangmanAsciiPrinter(lives int) {
+	switch lives {
+	case 9:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "        ",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "        ",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "        ",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "        ",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "        ",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "        ",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "        ",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 8:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       +",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 7:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 6:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 5:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " O     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 4:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " O     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 3:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " O     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "/|     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 2:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " O     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "/|\\    |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+
+	case 1:
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " O     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "/|\\    |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "/      |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+	case 0:
+		hangman.ClearScreen()
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " +-----+",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " |     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: " O     |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "/|\\    |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "/ \\    |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "       |",
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "===========",
+		})
+		hangman.NewLine(2)
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "Tu as perdu !",
+			FgColor:     color.FgRed,
+		})
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "LE MOT ÉTAIT : " + strings.Join(*hangman.Characters, ""),
+		})
+	}
 }
