@@ -1,10 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	hangman "hangman/Internals"
 	"math/rand"
-
+	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -14,21 +15,21 @@ func main() {
 	hangman.Letters = &[]string{}
 	//hangman.PressF11()
 	hangman.ClearScreen()
-
-	hangman.DisplayText(hangman.DisplayTextOptions{
-		TextToPrint: "Choisit un mot à faire deviner:",
-	})
-
-	input := hangman.GetInput()
-	if input == "" || !IsLetter(input) {
-		main()
+	words := LoadFile()
+	//fmt.Println("Words found in the file:", len(words))
+	//fmt.Println(words)
+	if len(words) > 0 {
+		InitializeVariables(words[rand.Intn(len(words))])
+	} else {
+		fmt.Println("No words found in the file.")
+		// Return an empty slice if the loop completes without errors
 	}
-	InitializeVariables(input)
 }
 
 func InitializeHangman(text string) {
 	hangman.ClearScreen()
 	HangmanAsciiPrinter(*hangman.PlayerLives)
+	hangman.NewLine(2)
 	for i := 0; i < len(*hangman.Letters); i++ {
 		fmt.Print(string((*hangman.Letters)[i]))
 	}
@@ -59,7 +60,18 @@ func InitializeVariables(text string) {
 			*hangman.Letters = append(*hangman.Letters, "_")
 		}
 	}
-	if len(*hangman.Letters) > 5 {
+
+	//AJOUTE DES LETTRES ALEATOIREMENT
+	if len(*hangman.Letters) > 9 {
+		for i := 0; i < 2; i++ {
+			x := rand.Intn(len(*hangman.Characters))
+			if (*hangman.Letters)[x] == "_" {
+				(*hangman.Letters)[x] = (*hangman.Characters)[x]
+			} else {
+				i--
+			}
+		}
+	} else if len(*hangman.Letters) > 5 {
 		x := rand.Intn(len(*hangman.Characters))
 		(*hangman.Letters)[x] = (*hangman.Characters)[x]
 	}
@@ -69,6 +81,7 @@ func InitializeVariables(text string) {
 func getLetter() {
 	//fmt.Println(hangman.Characters)
 	//fmt.Println(hangman.Letters)
+
 	hangman.NewLine(1)
 	hangman.DisplayText(hangman.DisplayTextOptions{
 		TextToPrint: "Choisit une lettre",
@@ -88,7 +101,7 @@ func getLetter() {
 		*hangman.PlayerLives -= 2
 		getLetter()
 	} else {
-		checkLetter(input)
+		checkLetter(strings.ToLower(input))
 	}
 }
 
@@ -100,7 +113,7 @@ func checkLetter(letter string) {
 			foundLetter = true
 		}
 	}
-	if foundLetter == false {
+	if !foundLetter {
 		*hangman.PlayerLives -= 1
 	}
 	//fmt.Println(hangman.Letters)
@@ -110,24 +123,27 @@ func checkLetter(letter string) {
 func PrintHangman() {
 	hangman.ClearScreen()
 	HangmanAsciiPrinter(*hangman.PlayerLives)
-	for i := 0; i < len(*hangman.Letters); i++ {
-		fmt.Print(string((*hangman.Letters)[i]))
-	}
-	hangman.NewLine(1)
-	for j := 0; j < len(*hangman.Letters); j++ {
-		if (*hangman.Letters)[j] == "_" {
-			break
-		} else {
-			if j == len(*hangman.Letters)-1 {
-				hangman.DisplayText(hangman.DisplayTextOptions{
-					TextToPrint: "Tu as gagné !",
-					FgColor:     color.FgGreen,
-				})
-				return
+	hangman.NewLine(2)
+	if *hangman.PlayerLives > 0 {
+		for i := 0; i < len(*hangman.Letters); i++ {
+			fmt.Print(string((*hangman.Letters)[i]))
+		}
+		hangman.NewLine(1)
+		for j := 0; j < len(*hangman.Letters); j++ {
+			if (*hangman.Letters)[j] == "_" {
+				break
+			} else {
+				if j == len(*hangman.Letters)-1 {
+					hangman.DisplayText(hangman.DisplayTextOptions{
+						TextToPrint: "Tu as gagné !",
+						FgColor:     color.FgGreen,
+					})
+					return
+				}
 			}
 		}
+		getLetter()
 	}
-	getLetter()
 }
 
 func IsLetter(s string) bool {
@@ -401,5 +417,29 @@ func HangmanAsciiPrinter(lives int) {
 		hangman.DisplayText(hangman.DisplayTextOptions{
 			TextToPrint: "LE MOT ÉTAIT : " + strings.Join(*hangman.Characters, ""),
 		})
+	}
+}
+
+func LoadFile() []string {
+	//Section 1
+	file, err := os.Open("words.txt")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return nil
+	}
+	defer file.Close()
+
+	r := bufio.NewReader(file)
+	words := []string{}
+	// Section 2
+	for {
+		line, _, err := r.ReadLine()
+		if len(line) > 0 {
+			//fmt.Printf("ReadLine: %q\n", line)
+			words = append(words, string(line))
+		}
+		if err != nil {
+			return words
+		}
 	}
 }
