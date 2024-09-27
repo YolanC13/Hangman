@@ -6,6 +6,8 @@ import (
 	hangman "hangman/Internals"
 	"math/rand"
 	"os"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,6 +39,9 @@ func InitializeHangman(text string) {
 					TextToPrint: "Tu as gagné !",
 					FgColor:     color.FgGreen,
 				})
+				hangman.DisplayText(hangman.DisplayTextOptions{
+					TextToPrint: "Nombre de vies restantes : " + fmt.Sprint(*hangman.PlayerLives),
+				})
 				hangman.GetInput()
 				MainMenuDisplay()
 				return
@@ -59,18 +64,27 @@ func InitializeVariables(text string) {
 	}
 
 	//AJOUTE DES LETTRES ALEATOIREMENT
-	if len(*hangman.Letters) > 9 {
+	if len(*hangman.Characters) > 9 {
 		for i := 0; i < 2; i++ {
 			x := rand.Intn(len(*hangman.Characters))
-			if (*hangman.Letters)[x] == "_" {
-				(*hangman.Letters)[x] = (*hangman.Characters)[x]
-			} else {
-				i--
+			y := (*hangman.Characters)[x]
+			for i := 0; i < len(*hangman.Characters); i++ {
+				if (*hangman.Characters)[i] == y {
+					(*hangman.Letters)[i] = y
+				}
+			}
+			hangman.UsedLetters = append(hangman.UsedLetters, (*hangman.Letters)[x])
+		}
+	} else if len(*hangman.Characters) > 5 {
+
+		x := rand.Intn(len(*hangman.Characters))
+		y := (*hangman.Characters)[x]
+		for i := 0; i < len(*hangman.Characters); i++ {
+			if (*hangman.Characters)[i] == y {
+				(*hangman.Letters)[i] = y
 			}
 		}
-	} else if len(*hangman.Letters) > 5 {
-		x := rand.Intn(len(*hangman.Characters))
-		(*hangman.Letters)[x] = (*hangman.Characters)[x]
+		hangman.UsedLetters = append(hangman.UsedLetters, (*hangman.Letters)[x])
 	}
 	InitializeHangman(text)
 }
@@ -78,17 +92,29 @@ func InitializeVariables(text string) {
 func getLetter(x bool) {
 
 	//DEBUG
-	//fmt.Println(hangman.Characters)
-	//fmt.Println(hangman.Letters)
+	/*fmt.Println(hangman.Characters)
+	fmt.Println(hangman.Letters)
+	fmt.Println(hangman.UsedLetters)*/
 
 	if x {
 		hangman.NewLine(1)
 		hangman.BoxStrings([]string{"Choisit une lettre"})
 		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "/!\\ Tu as " + fmt.Sprint(*hangman.PlayerLives) + " vies /!\\",
+			TextToPrint: "/!\\ Tu as " + fmt.Sprint(*hangman.PlayerLives) + " vie /!\\",
 			FgColor:     color.FgRed,
 		})
+		if len(hangman.UsedLetters) > 0 {
+			hangman.NewLine(1)
+			fmt.Printf("Lettres utilisées : ")
+			for i := 0; i < len(hangman.UsedLetters); i++ {
+				fmt.Printf(hangman.UsedLetters[i] + " ")
+			}
+			fmt.Printf("\n")
+		}
+		hangman.NewLine(1)
+		hangman.DisplayLine()
 	}
+	fmt.Print("Entrez une lettre: ")
 	input := hangman.GetInput()
 	if input == "" || !IsLetter(input) {
 		hangman.DisplayText(hangman.DisplayTextOptions{
@@ -98,7 +124,7 @@ func getLetter(x bool) {
 		getLetter(false)
 	} else if len(input) != 1 {
 		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "Vous avez tenté de rentrer plus d'une lettre vous perdez 2 vies",
+			TextToPrint: "Vous avez tenté de rentrer plus d'une lettre, vous perdez 2 vies",
 			FgColor:     color.FgRed,
 		})
 		*hangman.PlayerLives -= 2
@@ -111,15 +137,22 @@ func getLetter(x bool) {
 func checkLetter(letter string) {
 	foundLetter := false
 	for i := 0; i < len(*hangman.Characters); i++ {
-		if letter == (*hangman.Characters)[i] {
+		if letter == (*hangman.Characters)[i] && !slices.Contains(hangman.UsedLetters, letter) {
 			(*hangman.Letters)[i] = letter
 			foundLetter = true
 		}
 	}
 	if !foundLetter {
+		if slices.Contains(hangman.UsedLetters, letter) {
+			hangman.DisplayText(hangman.DisplayTextOptions{
+				TextToPrint: "Vous avez déja tenté de rentrer cette lettre, vous perdez 1 vie",
+				FgColor:     color.FgRed,
+			})
+			hangman.GetInput()
+		}
 		*hangman.PlayerLives -= 1
 	}
-	//fmt.Println(hangman.Letters)
+	hangman.UsedLetters = append(hangman.UsedLetters, letter)
 	PrintHangman()
 }
 
@@ -138,9 +171,17 @@ func PrintHangman() {
 				break
 			} else {
 				if j == len(*hangman.Letters)-1 {
+					hangman.NewLine(2)
 					hangman.DisplayText(hangman.DisplayTextOptions{
 						TextToPrint: "Tu as gagné !",
 						FgColor:     color.FgGreen,
+					})
+					hangman.DisplayText(hangman.DisplayTextOptions{
+						TextToPrint: "Nombre de vies restantes : " + fmt.Sprint(*hangman.PlayerLives),
+					})
+					hangman.NewLine(2)
+					hangman.DisplayText(hangman.DisplayTextOptions{
+						TextToPrint: "Appuyez pour continuer",
 					})
 					hangman.GetInput()
 					MainMenuDisplay()
@@ -162,259 +203,12 @@ func IsLetter(s string) bool {
 }
 
 func HangmanAsciiPrinter(lives int) {
-	switch lives {
-	case 9:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "        ",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "        ",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "        ",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "        ",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "        ",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "        ",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "        ",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
-	case 8:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       +",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
-	case 7:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
-	case 6:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
-	case 5:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " O     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
-	case 4:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " O     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
-	case 3:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " O     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "/|     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
-	case 2:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " O     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "/|\\    |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
 
-	case 1:
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " O     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "/|\\    |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "/      |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
+	fmt.Println(hangman.ASCIIArts["Hangman"+strconv.Itoa(lives)])
+	switch lives {
 	case 0:
 		hangman.ClearScreen()
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " +-----+",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " |     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: " O     |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "/|\\    |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "/ \\    |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "       |",
-		})
-		hangman.DisplayText(hangman.DisplayTextOptions{
-			TextToPrint: "===========",
-		})
+
 		hangman.NewLine(2)
 		hangman.DisplayText(hangman.DisplayTextOptions{
 			TextToPrint: "Tu as perdu !",
@@ -445,13 +239,16 @@ func MainMenuDisplay() {
 		IsCentered:  true,
 	})
 	hangman.NewLine(2)
+	fmt.Print("Votre choix: ")
 	input := hangman.GetInput()
 	switch input {
 	case "1":
 		words := hangman.LoadFile()
 		if len(words) > 0 {
+			hangman.AsciiArtsInit()
 			hangman.Letters = &[]string{}
 			hangman.HangmanChar = []string{}
+			hangman.UsedLetters = []string{}
 			InitializeVariables(words[rand.Intn(len(words))])
 		} else {
 			fmt.Println("Pas de mots trouvés dans le fichier words.txt")
@@ -478,8 +275,8 @@ func MainMenuDisplay() {
 }
 
 func MainMenuIntro() {
+	hangman.NewLine(3)
 	width, _ := hangman.SizeTest()
-	fmt.Println(width)
 	for i := width; i > width/2; i -= 2 {
 		time.Sleep(40_000_000 * time.Nanosecond)
 		hangman.ClearScreen()
