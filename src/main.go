@@ -252,6 +252,8 @@ func MainMenuDisplay() {
 			InitializeVariables(words[rand.Intn(len(words))])
 		} else {
 			fmt.Println("Pas de mots trouvés dans le fichier words.txt")
+			hangman.GetInput()
+			AddWord()
 		}
 	case "2":
 		AddWord()
