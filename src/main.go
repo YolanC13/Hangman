@@ -264,8 +264,7 @@ func MainMenuDisplay() {
 			IsCentered:  true,
 		})
 		time.Sleep(2 * time.Second)
-		hangman.ClearScreen()
-		return
+		os.Exit(3)
 	default:
 		hangman.DisplayText(hangman.DisplayTextOptions{
 			TextToPrint: "Veuillez entrer un chiffre entre 1 et 3",

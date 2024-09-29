@@ -7,5 +7,5 @@ raisin
 prune
 mandarine
 peche
-Tartempion
+Ananas
 
