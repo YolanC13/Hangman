@@ -18,6 +18,12 @@ var Letters = &UsedLetters
 var ASCIIArts map[string]string
 var ASCIIArtsPtr = &ASCIIArts
 
+var WordList []string
+var WordListPtr = &WordList
+
+var fileImported string
+var FileImportedPtr = &fileImported
+
 func AsciiArtsInit() {
 	// Initialise ASCIIArts
 	*ASCIIArtsPtr = make(map[string]string)

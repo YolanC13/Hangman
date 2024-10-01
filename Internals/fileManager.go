@@ -6,11 +6,12 @@ import (
 	"os"
 )
 
-func LoadFile() []string {
+func LoadFile(fileToLoad string) []string {
 	//Section 1
-	file, err := os.Open("words.txt")
+	file, err := os.Open(fileToLoad)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
+		fmt.Println("Vérifiez que le fichier " + fileToLoad + " est bien présent dans le répertoire du programme")
 		return nil
 	}
 	defer file.Close()
@@ -28,4 +29,18 @@ func LoadFile() []string {
 			return words
 		}
 	}
+}
+
+func FileExists(filename string) bool {
+
+	info, err := os.Stat(filename)
+
+	if os.IsNotExist(err) {
+
+		return false
+
+	}
+
+	return !info.IsDir()
+
 }

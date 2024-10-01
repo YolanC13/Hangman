@@ -18,6 +18,20 @@ func main() {
 	hangman.Letters = &[]string{}
 	//hangman.PressF11()
 	hangman.ClearScreen()
+
+	fichier := "words.txt"
+	hangman.FileImportedPtr = &fichier
+	args := os.Args[1:]
+	if len(args) == 1 {
+		fichier = args[0]
+	}
+
+	if !hangman.FileExists(fichier) {
+		fmt.Println("ERREUR: Le fichier " + fichier + " n'existe pas.")
+		return
+	}
+
+	*hangman.WordListPtr = hangman.LoadFile(fichier)
 	MainMenuDisplay()
 }
 
@@ -243,15 +257,14 @@ func MainMenuDisplay() {
 	input := hangman.GetInput()
 	switch input {
 	case "1":
-		words := hangman.LoadFile()
-		if len(words) > 0 {
+		if len(*hangman.WordListPtr) > 0 {
 			hangman.AsciiArtsInit()
 			hangman.Letters = &[]string{}
 			hangman.HangmanChar = []string{}
 			hangman.UsedLetters = []string{}
-			InitializeVariables(words[rand.Intn(len(words))])
+			InitializeVariables((*hangman.WordListPtr)[rand.Intn(len(*hangman.WordListPtr))])
 		} else {
-			fmt.Println("Pas de mots trouvés dans le fichier words.txt")
+			fmt.Println("Pas de mots trouvés dans le fichier")
 			hangman.GetInput()
 			AddWord()
 		}
@@ -306,7 +319,7 @@ func AddWord() {
 	//MERCI CHAT GPT
 	hangman.ClearScreen()
 
-	file, err := os.OpenFile("words.txt", os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(*hangman.FileImportedPtr, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
@@ -329,18 +342,25 @@ func AddWord() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	word := scanner.Text()
-	words = append(words, word+"\n")
+	if IsLetter(word) {
+		words = append(words, word+"\n")
+		w := bufio.NewWriter(file)
+		for _, word := range words {
+			fmt.Fprintln(w, word)
+		}
+		w.Flush()
 
-	w := bufio.NewWriter(file)
-	for _, word := range words {
-		fmt.Fprintln(w, word)
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "Mot ajouté à la liste",
+			FgColor:     color.FgGreen,
+		})
+	} else {
+		hangman.DisplayText(hangman.DisplayTextOptions{
+			TextToPrint: "Caractères non autorisés",
+			FgColor:     color.FgRed,
+		})
 	}
-	w.Flush()
 
-	hangman.DisplayText(hangman.DisplayTextOptions{
-		TextToPrint: "Mot ajouté à la liste",
-		FgColor:     color.FgGreen,
-	})
 	hangman.NewLine(1)
 	fmt.Println("Appuyez pour continuer")
 	hangman.GetInput()
